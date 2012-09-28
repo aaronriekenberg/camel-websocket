@@ -37,11 +37,9 @@ public final class WebsocketServerMain {
 			log.info("websocket server listening on " + wc.getHost() + ":"
 					+ wc.getPort());
 
-			// poll twitter search for new tweets
 			fromF("activemq:topic:test.websocket.topic").log(
-					"publishing ${body}")
-			// and push tweets to all web socket subscribers on camel-tweet
-					.to("websocket:camel-test?sendToAll=true");
+					"publishing ${body}").to(
+					"websocket:camel-test?sendToAll=true");
 		}
 	}
 
