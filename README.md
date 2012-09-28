@@ -14,4 +14,4 @@ JMSMessageSender - send a text message every 500 ms to activemq:test.websocket.t
 
 Running:
 
-Start programs in the order above, then go to http://localhost:9090 to see JMS -> websocket -> browser.
+Start the programs, then go to http://localhost:9090 to see JMS -> websocket -> browser.
