@@ -44,7 +44,7 @@ public class JMSMessageSender {
 			final Endpoint beanEndpoint = bc
 					.createEndpoint(new JMSMessageBuilder());
 
-			fromF(
+			from(
 					"timer://testMessageSenderTimer?fixedRate=true&period="
 							+ MESSAGE_RATE_MS).to(beanEndpoint)
 					.log("publishing ${body}")

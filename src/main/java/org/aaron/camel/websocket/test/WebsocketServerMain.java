@@ -37,7 +37,7 @@ public final class WebsocketServerMain {
 			log.info("websocket server listening on " + wc.getHost() + ":"
 					+ wc.getPort());
 
-			fromF("activemq:topic:test.websocket.topic").log(
+			from("activemq:topic:test.websocket.topic").log(
 					"publishing ${body}").to(
 					"websocket:camel-test?sendToAll=true");
 		}
