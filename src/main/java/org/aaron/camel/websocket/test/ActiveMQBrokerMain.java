@@ -1,25 +1,21 @@
 package org.aaron.camel.websocket.test;
 
-import org.apache.activemq.broker.BrokerService;
-import org.apache.log4j.Logger;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class ActiveMQBrokerMain {
-
-	private static final Logger log = Logger.getLogger(ActiveMQBrokerMain.class);
 
 	private ActiveMQBrokerMain() {
 
 	}
 
 	public static void main(String[] args) {
-		try {
-			final BrokerService brokerService = new BrokerService();
-			brokerService.addConnector("tcp://0.0.0.0:61616");
-			brokerService.setPersistent(false);
-			brokerService.start();
-			log.info("broker started");
-		} catch (Exception e) {
-			log.warn("main", e);
+		new ClassPathXmlApplicationContext("activemq-broker.xml");
+
+		while (true) {
+			try {
+				Thread.sleep(10000);
+			} catch (InterruptedException e) {
+			}
 		}
 	}
 
