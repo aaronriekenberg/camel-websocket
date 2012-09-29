@@ -11,29 +11,69 @@
         function $() { return document.getElementById(arguments[0]); }
 
         var room = {
-        join: function(name) {
-        this._username=name;
-        var location = "ws://localhost:9090/camel-test";
-        this._ws=new WebSocket(location);
-        this._ws.onmessage=this._onmessage;
-        this._ws.onclose=this._onclose;
+        join: function() {
+        this._location = "ws://localhost:9090/camel-test";
+        this._ws=null;
+        this._connect();
+		setInterval(room._checkConnection, 2000);
         },
-
-        _onmessage: function(m) {
-        if (m.data){
-        var chat=$('chat');
+        
+        _checkConnection: function() {
+        if (room._ws == null) {
+          room._connect();
+        }
+        else {
+          if ((room._ws.readyState == 2) ||
+              (room._ws.readyState == 3)) {
+            room._connect();
+          }
+        }
+        },
+        
+        _connect: function() {
+        if (room._ws != null) {
+          room._ws.close();
+          room._ws = null;
+        }
+        
+        room._displayMessage('Attempt WebSocket connect');
+        
+        room._ws=new WebSocket(this._location);
+        room._ws.onmessage=this._onmessage;
+        room._ws.onopen=this._onopen;
+        room._ws.onclose=this._onclose;
+        room._ws.onerror=this._onerror;
+        },
+        
+        _displayMessage: function(msg) {
+        var chat=$('messages');
         var spanText = document.createElement('span');
         spanText.className='text';
-        spanText.innerHTML=m.data;
+        spanText.innerHTML=msg;
         var lineBreak = document.createElement('br');
         chat.appendChild(spanText);
         chat.appendChild(lineBreak);
         chat.scrollTop = chat.scrollHeight - chat.clientHeight;
+        },
+        
+        _onopen: function(evt) {
+       	room._displayMessage('WebSocket opened');
+        },
+
+        _onmessage: function(m) {
+        if (m.data){
+       	room._displayMessage(m.data);
         }
         },
 
-        _onclose: function(m) {
-        this._ws=null;
+        _onclose: function(evt) {
+       	room._displayMessage('WebSocket closed');
+        room._ws=null;
+        },
+        
+        _onerror: function(evt) {
+       	room._displayMessage('WebSocket error');
+        room._ws=null;
         }
 
         };
@@ -41,13 +81,13 @@
     </script>
     <style type='text/css'>
         div { border: 0px solid black; }
-        div#chat { clear: both; width: 80em; height: 60ex; overflow: auto; background-color: #f0f0f0; padding: 4px; border: 1px solid black; }
+        div#messages { clear: both; width: 80em; height: 60ex; overflow: auto; background-color: #f0f0f0; padding: 4px; border: 1px solid black; }
     </style>
 </head>
 <body>
-<div id='chat'></div>
+<div id='messages'></div>
 <script type='text/javascript'>
-    room.join("Testing");
+    room.join();
 </script>
 </body>
 </html>
