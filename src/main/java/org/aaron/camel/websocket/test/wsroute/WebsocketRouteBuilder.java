@@ -8,7 +8,7 @@ public class WebsocketRouteBuilder extends RouteBuilder {
 	public void configure() throws Exception {
 		from("activemq:topic:test.websocket.topic")
 				.log("publishing ${body}")
-				.to("websocket://localhost:9090/camel-test?sendToAll=true&staticResources=classpath:webapp");
+				.to("websocket://0.0.0.0:9090/camel-test?sendToAll=true&staticResources=classpath:webapp");
 	}
 
 }

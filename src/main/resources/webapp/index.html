@@ -7,72 +7,96 @@
         if (!window.WebSocket) {
         alert("WebSocket not supported by this browser");
         }
-
+        
         function $() { return document.getElementById(arguments[0]); }
+        
+        function getTimeString() {
+          var date = new Date();
+          var hours = date.getHours();
+          if (hours < 10) {
+            hours = "0" + hours;
+          }
+          var minutes = date.getMinutes();
+          if (minutes < 10) {
+            minutes = "0" + minutes;
+          }
+          var seconds = date.getSeconds();
+          if (seconds < 10) {
+            seconds = "0" + seconds;
+          }
+          var milliseconds = date.getMilliseconds();
+          if (milliseconds < 10) {
+            milliseconds = "00" + milliseconds;
+          } else if (milliseconds < 100) {
+            milliseconds = "0" + milliseconds;
+          }
+          return hours + ":" + minutes + ":" + seconds + "." + milliseconds;
+        }
 
         var room = {
-        join: function() {
-        this._location = "ws://localhost:9090/camel-test";
-        this._ws=null;
-        this._connect();
-        setInterval(room._checkConnection, 2000);
-        },
         
-        _checkConnection: function() {
-        if (room._ws == null) {
-          room._connect();
-        }
-        else if ((room._ws.readyState == 2) ||
-                 (room._ws.readyState == 3)) {
-          room._connect();
-        }
-        },
+          join: function() {
+            room._location = "ws://" + window.location.hostname + ":" + window.location.port + "/camel-test";
+            room._ws=null;
+            room._connect();
+            setInterval(room._checkConnection, 2000);
+          },
         
-        _connect: function() {
-        if (room._ws != null) {
-          room._ws.close();
-          room._ws = null;
-        }
+          _checkConnection: function() {
+            if (room._ws == null) {
+              room._connect();
+            }
+            else if ((room._ws.readyState == WebSocket.CLOSING) ||
+                     (room._ws.readyState == WebSocket.CLOSED)) {
+              room._connect();
+            }
+          },
         
-        room._displayMessage('Attempt WebSocket connect');
+          _connect: function() {
+            if (room._ws != null) {
+              room._ws.close();
+              room._ws = null;
+            }
         
-        room._ws=new WebSocket(this._location);
-        room._ws.onmessage=this._onmessage;
-        room._ws.onopen=this._onopen;
-        room._ws.onclose=this._onclose;
-        room._ws.onerror=this._onerror;
-        },
+            room._displayMessage("Attempt WebSocket connect to " + room._location);
         
-        _displayMessage: function(msg) {
-        var chat=$('messages');
-        var spanText = document.createElement('span');
-        spanText.className='text';
-        spanText.innerHTML=msg;
-        var lineBreak = document.createElement('br');
-        chat.appendChild(spanText);
-        chat.appendChild(lineBreak);
-        chat.scrollTop = chat.scrollHeight - chat.clientHeight;
-        },
+            room._ws=new WebSocket(room._location);
+            room._ws.onmessage=room._onmessage;
+            room._ws.onopen=room._onopen;
+            room._ws.onclose=room._onclose;
+            room._ws.onerror=room._onerror;
+          },
         
-        _onopen: function(evt) {
-       	room._displayMessage('WebSocket opened');
-        },
+          _displayMessage: function(msg) {
+            var chat=$('messages');
+            var spanText = document.createElement('span');
+            spanText.className = 'text';
+            spanText.innerHTML = getTimeString() + " " + msg;
+            var lineBreak = document.createElement('br');
+            chat.appendChild(spanText);
+            chat.appendChild(lineBreak);
+            chat.scrollTop = chat.scrollHeight - chat.clientHeight;
+          },
+        
+          _onopen: function(evt) {
+       	    room._displayMessage('WebSocket opened');
+          },
 
-        _onmessage: function(m) {
-        if (m.data){
-       	room._displayMessage(m.data);
-        }
-        },
+          _onmessage: function(m) {
+            if (m.data){
+       	      room._displayMessage(m.data);
+            }
+          },
 
-        _onclose: function(evt) {
-       	room._displayMessage('WebSocket closed');
-        room._ws=null;
-        },
+          _onclose: function(evt) {
+       	    room._displayMessage('WebSocket closed');
+            room._ws=null;
+          },
         
-        _onerror: function(evt) {
-       	room._displayMessage('WebSocket error');
-        room._ws=null;
-        }
+          _onerror: function(evt) {
+       	    room._displayMessage('WebSocket error');
+            room._ws=null;
+          }
 
         };
 
